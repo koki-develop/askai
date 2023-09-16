@@ -10,6 +10,7 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/textarea"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/glamour"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/sashabaranov/go-openai"
 )
@@ -187,17 +188,27 @@ func (m *model) View() string {
 		}
 
 		v.WriteRune('\n')
-		v.WriteString(msg.Content)
-		v.WriteRune('\n')
+
+		content, err := glamour.Render(msg.Content, "dark")
+		if err != nil {
+			m.program.Send(errMsg{err})
+			return ""
+		}
+		v.WriteString(content)
 	}
 
 	if m.receiving {
 		v.WriteString(aiStyle.Render("AI"))
 		v.WriteRune('\n')
-		v.WriteString(m.resceivingMessage)
+		content, err := glamour.Render(m.resceivingMessage, "dark")
+		if err != nil {
+			m.program.Send(errMsg{err})
+			return ""
+		}
+		v.WriteString(content)
 	} else {
 		v.WriteString(youStyle.Render("You"))
-		v.WriteRune('\n')
+		v.WriteString("\n\n")
 		v.WriteString(m.textarea.View())
 		v.WriteRune('\n')
 		v.WriteString(m.help.View(m.textareaKeyMap))
