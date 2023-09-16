@@ -42,49 +42,69 @@ func (ui *UI) Start() error {
 	ctx := context.Background()
 
 	messages := []openai.ChatCompletionMessage{}
-
 	for {
-		m := newInputModel()
-		if _, err := tea.NewProgram(m).Run(); err != nil {
-			return err
-		}
-		if m.abort {
-			break
-		}
-		ui.writer.Write([]byte(youHeader))
-		ui.writer.Write([]byte{'\n'})
-		ui.writer.Write([]byte(strings.TrimSpace(m.value)))
-		ui.writer.Write([]byte{'\n', '\n'})
-		messages = append(messages, openai.ChatCompletionMessage{Role: openai.ChatMessageRoleUser, Content: m.value})
-
-		stream, err := ui.client.CreateChatCompletionStream(ctx, openai.ChatCompletionRequest{
-			Messages: messages,
-			Model:    ui.model,
-			Stream:   true,
-		})
+		ipt, ok, err := ui.readInput()
 		if err != nil {
 			return err
 		}
-		defer stream.Close()
-
-		b := new(strings.Builder)
-		ui.writer.Write([]byte(aiHeader))
-		ui.writer.Write([]byte{'\n'})
-		for {
-			resp, err := stream.Recv()
-			if err != nil {
-				if errors.Is(err, io.EOF) {
-					break
-				}
-				return err
-			}
-			s := resp.Choices[0].Delta.Content
-			b.WriteString(s)
-			ui.writer.Write([]byte(s))
+		if !ok {
+			break
 		}
-		ui.writer.Write([]byte{'\n', '\n'})
-		messages = append(messages, openai.ChatCompletionMessage{Role: openai.ChatMessageRoleAssistant, Content: b.String()})
+		messages = append(messages, openai.ChatCompletionMessage{Role: openai.ChatMessageRoleUser, Content: ipt})
+
+		ans, err := ui.printAnswer(ctx, messages)
+		if err != nil {
+			return err
+		}
+		messages = append(messages, openai.ChatCompletionMessage{Role: openai.ChatMessageRoleAssistant, Content: ans})
 	}
 
 	return nil
+}
+
+func (ui *UI) readInput() (string, bool, error) {
+	m := newInputModel()
+	if _, err := tea.NewProgram(m).Run(); err != nil {
+		return "", false, err
+	}
+	if m.abort {
+		return "", false, nil
+	}
+
+	ui.writer.Write([]byte(youHeader))
+	ui.writer.Write([]byte{'\n'})
+	ui.writer.Write([]byte(strings.TrimSpace(m.value)))
+	ui.writer.Write([]byte{'\n', '\n'})
+	return m.value, true, nil
+}
+
+func (ui *UI) printAnswer(ctx context.Context, messages []openai.ChatCompletionMessage) (string, error) {
+	stream, err := ui.client.CreateChatCompletionStream(ctx, openai.ChatCompletionRequest{
+		Messages: messages,
+		Model:    ui.model,
+		Stream:   true,
+	})
+	if err != nil {
+		return "", err
+	}
+	defer stream.Close()
+
+	b := new(strings.Builder)
+	ui.writer.Write([]byte(aiHeader))
+	ui.writer.Write([]byte{'\n'})
+	for {
+		resp, err := stream.Recv()
+		if err != nil {
+			if errors.Is(err, io.EOF) {
+				break
+			}
+			return "", err
+		}
+		s := resp.Choices[0].Delta.Content
+		b.WriteString(s)
+		ui.writer.Write([]byte(s))
+	}
+	ui.writer.Write([]byte{'\n', '\n'})
+
+	return b.String(), nil
 }
