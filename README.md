@@ -73,8 +73,8 @@ $ askai --configure
 Upon doing so, you will initiate an interactive setup session.  
 Input the following items:
 
-- OpenAI API Key
-- Model
+- OpenAI API Key: API key created on [the OpenAI platform](https://platform.openai.com).
+- Model: The chat completion model to use. (Available: `gpt-4`, `gpt-4-0613`, `gpt-4-32k`, `gpt-4-32k-0613`, `gpt-3.5-turbo`, `gpt-3.5-turbo-0613`, `gpt-3.5-turbo-16k`, `gpt-3.5-turbo-16k-0613`)
 
 Once the setup is completed, a configuration file named `.askai` will be saved.  
 Now, you are all set.
