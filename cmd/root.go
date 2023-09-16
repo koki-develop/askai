@@ -14,9 +14,19 @@ var (
 	flagInteractive bool   // -i, --interactive
 )
 
+var initCmd = &cobra.Command{
+	Use:   "init",
+	Short: "Configure askai",
+	Long:  "Configure askai.",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return nil
+	},
+}
+
 var rootCmd = &cobra.Command{
 	Use:   "askai [flags] [question]",
-	Short: "AI is with you.",
+	Short: "AI is with you",
+	Long:  "AI is with you.",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// TODO: from config file
 		key := os.Getenv("OPENAI_API_KEY")
@@ -51,4 +61,6 @@ func Execute() {
 func init() {
 	rootCmd.Flags().StringVarP(&flagModel, "model", "m", openai.GPT3Dot5Turbo, "the chat completion model to use")
 	rootCmd.Flags().BoolVarP(&flagInteractive, "interactive", "i", false, "interactive mode")
+
+	rootCmd.AddCommand(initCmd)
 }
