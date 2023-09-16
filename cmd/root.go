@@ -1,52 +1,26 @@
 package cmd
 
 import (
-	"context"
-	"errors"
-	"fmt"
-	"io"
 	"os"
-	"strings"
 
-	openai "github.com/sashabaranov/go-openai"
+	"github.com/koki-develop/askai/internal/ui"
+	"github.com/sashabaranov/go-openai"
 	"github.com/spf13/cobra"
 )
 
 var rootCmd = &cobra.Command{
 	Use: "askai",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		q := strings.Join(args, " ")
-
-		ctx := context.Background()
-
+		// TODO: from config file
 		key := os.Getenv("OPENAI_API_KEY")
-		client := openai.NewClient(key)
-
-		// TODO: from config
 		model := openai.GPT3Dot5Turbo
 
-		stream, err := client.CreateChatCompletionStream(ctx, openai.ChatCompletionRequest{
-			Messages: []openai.ChatCompletionMessage{
-				{Role: openai.ChatMessageRoleUser, Content: q},
-			},
+		ui := ui.New(&ui.Config{
+			APIKey: key,
 			Model:  model,
-			Stream: true,
 		})
-		if err != nil {
+		if err := ui.Start(); err != nil {
 			return err
-		}
-		defer stream.Close()
-
-		for {
-			resp, err := stream.Recv()
-			if err != nil {
-				if errors.Is(err, io.EOF) {
-					break
-				}
-				return err
-			}
-
-			fmt.Print(resp.Choices[0].Delta.Content)
 		}
 
 		return nil
