@@ -10,6 +10,7 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/textarea"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/sashabaranov/go-openai"
 )
 
@@ -174,15 +175,29 @@ func (m *model) receive() tea.Msg {
 
 func (m *model) View() string {
 	v := new(strings.Builder)
+	youStyle := lipgloss.NewStyle().Background(lipgloss.Color("#00ADD8")).Foreground(lipgloss.Color("#000000")).Padding(0, 1)
+	aiStyle := lipgloss.NewStyle().Background(lipgloss.Color("#ffffff")).Foreground(lipgloss.Color("#000000")).Padding(0, 1)
 
 	for _, msg := range m.messages {
+		switch msg.Role {
+		case openai.ChatMessageRoleUser:
+			v.WriteString(youStyle.Render("You"))
+		case openai.ChatMessageRoleAssistant:
+			v.WriteString(aiStyle.Render("AI"))
+		}
+
+		v.WriteRune('\n')
 		v.WriteString(msg.Content)
 		v.WriteRune('\n')
 	}
 
 	if m.receiving {
+		v.WriteString(aiStyle.Render("AI"))
+		v.WriteRune('\n')
 		v.WriteString(m.resceivingMessage)
 	} else {
+		v.WriteString(youStyle.Render("You"))
+		v.WriteRune('\n')
 		v.WriteString(m.textarea.View())
 		v.WriteRune('\n')
 		v.WriteString(m.help.View(m.textareaKeyMap))
