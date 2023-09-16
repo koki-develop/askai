@@ -99,12 +99,6 @@ type endReceivingMsg struct{}
 func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	cmds := []tea.Cmd{}
 
-	{
-		var cmd tea.Cmd
-		m.textarea, cmd = m.textarea.Update(msg)
-		cmds = append(cmds, cmd)
-	}
-
 	switch msg := msg.(type) {
 	case errMsg:
 		m.err = msg.error
@@ -130,12 +124,19 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmds = append(cmds, m.receive)
 	case receivedMsg:
 		m.resceivingMessage = msg.string
+		return m, nil
 	case endReceivingMsg:
 		m.textarea.Focus()
 		m.textareaKeyMap.Submit.SetEnabled(true)
 		m.receiving = false
 		m.messages = append(m.messages, openai.ChatCompletionMessage{Role: openai.ChatMessageRoleAssistant, Content: m.resceivingMessage})
 		m.resceivingMessage = ""
+	}
+
+	{
+		var cmd tea.Cmd
+		m.textarea, cmd = m.textarea.Update(msg)
+		cmds = append(cmds, cmd)
 	}
 
 	return m, tea.Batch(cmds...)
