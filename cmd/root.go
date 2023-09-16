@@ -32,8 +32,8 @@ type config struct {
 	Model  string `mapstructure:"model"`
 }
 
-var initCmd = &cobra.Command{
-	Use:   "init",
+var configureCmd = &cobra.Command{
+	Use:   "configure",
 	Short: "Configure askai",
 	Long:  "Configure askai.",
 	RunE: func(cmd *cobra.Command, args []string) error {
@@ -136,10 +136,10 @@ func init() {
 	rootCmd.Flags().StringVarP(&flagModel, "model", "m", openai.GPT3Dot5Turbo, "the chat completion model to use")
 	rootCmd.Flags().BoolVarP(&flagInteractive, "interactive", "i", false, "interactive mode")
 
-	rootCmd.AddCommand(initCmd)
-	initCmd.Flags().BoolVarP(&flagGlobal, "global", "g", false, "configure askai globally")
-	initCmd.Flags().StringVarP(&flagAPIKey, "api-key", "k", "", "the OpenAI API key")
-	initCmd.Flags().StringVarP(&flagModel, "model", "m", "", "the chat completion model to use")
+	rootCmd.AddCommand(configureCmd)
+	configureCmd.Flags().BoolVarP(&flagGlobal, "global", "g", false, "configure askai globally")
+	configureCmd.Flags().StringVarP(&flagAPIKey, "api-key", "k", "", "the OpenAI API key")
+	configureCmd.Flags().StringVarP(&flagModel, "model", "m", "", "the chat completion model to use")
 
 	cobra.OnInitialize(func() {
 		viper.SetConfigName(".askai")
