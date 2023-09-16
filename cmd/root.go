@@ -63,21 +63,20 @@ func configure(cmd *cobra.Command, args []string) error {
 		viper.Set("model", cfg.Model)
 	}
 
+	p := ".askai"
 	if flagGlobal {
 		h, err := os.UserHomeDir()
 		if err != nil {
 			return err
 		}
-		p := filepath.Join(h, ".askai")
-		viper.SetConfigFile(p)
-	} else {
-		viper.SetConfigFile(".askai")
+		p = filepath.Join(h, p)
 	}
+	viper.SetConfigFile(p)
 	if err := viper.WriteConfig(); err != nil {
 		return err
 	}
 
-	fmt.Println("Configured.")
+	fmt.Printf("Configuration saved to %s\n", p)
 	return nil
 }
 
