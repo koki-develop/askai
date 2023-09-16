@@ -13,7 +13,7 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use: "CLI_NAME", // TODO
+	Use: "askai",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		q := strings.Join(args, " ")
 
