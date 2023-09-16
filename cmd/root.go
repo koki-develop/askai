@@ -13,6 +13,10 @@ import (
 	"golang.org/x/term"
 )
 
+/*
+ * TODO: refactor
+ */
+
 var (
 	cfg config
 
