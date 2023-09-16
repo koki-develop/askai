@@ -8,7 +8,7 @@ require (
 	github.com/charmbracelet/lipgloss v0.7.1
 	github.com/sashabaranov/go-openai v1.15.3
 	github.com/spf13/cobra v1.7.0
-	golang.org/x/net v0.0.0-20221002022538-bcab6841153b
+	golang.org/x/net v0.7.0
 )
 
 require (
@@ -29,5 +29,5 @@ require (
 	golang.org/x/sync v0.1.0 // indirect
 	golang.org/x/sys v0.6.0 // indirect
 	golang.org/x/term v0.6.0 // indirect
-	golang.org/x/text v0.3.8 // indirect
+	golang.org/x/text v0.7.0 // indirect
 )
