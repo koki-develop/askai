@@ -20,6 +20,7 @@ AI is with you.
 
 - [Installation](#installation)
 - [Usage](#usage)
+- [Getting Started](#getting-started)
 - [LICENSE](#license)
 
 ## Installation
@@ -58,6 +59,50 @@ Flags:
   -m, --model string     the chat completion model to use (default "gpt-3.5-turbo")
   -v, --version          version for askai
 ```
+
+## Getting Started
+
+### Setup
+
+First, run the `askai` with the `--configure` flag set.
+
+```console
+$ askai --configure
+```
+
+Upon doing so, you will initiate an interactive setup session.  
+Input the following items:
+
+- OpenAI API Key
+- Model
+
+Once the setup is completed, a configuration file named `.askai` will be saved.  
+Now, you are all set.
+
+> **Note**
+> If you run the `askai --configure` with the `--global` flag set, the configuration file will be saved as `$HOME/.askai`.  
+> This file is referred to when executing `askai`, if there is no `.askai` in the current directory.
+
+### Ask a question to AI
+
+By passing a question an argument to `askai`, you can obtain an answer from AI.
+
+```console
+$ askai 'Please write a program in Go that outputs "Hello world”.'
+```
+
+![](./assets/oneshot.gif)
+
+### Ask a question to AI interactively
+
+By running `askai` with the `-i` or `--interactive` flag set, you can ask questions to AI in an interactive manner.
+
+```console
+$ askai -i
+```
+
+![](./assets/demo.gif)
+
 
 ## LICENSE
 
