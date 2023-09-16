@@ -35,6 +35,7 @@ type model struct {
 
 func newModel(cfg *Config) *model {
 	ta := textarea.New()
+	ta.ShowLineNumbers = false
 	ta.Focus()
 
 	return &model{
