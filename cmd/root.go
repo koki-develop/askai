@@ -3,14 +3,13 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
 	"syscall"
 
+	"github.com/koki-develop/askai/internal/config"
 	"github.com/koki-develop/askai/internal/ui"
 	"github.com/sashabaranov/go-openai"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"golang.org/x/term"
 )
 
@@ -19,21 +18,19 @@ import (
  */
 
 var (
-	cfg config
-
 	flagGlobal      bool   // -g, --global
-	flagConfigure   bool   // -c, --configure
+	flagConfigure   bool   // --configure
 	flagAPIKey      string // -k, --api-key
 	flagModel       string // -m, --model
 	flagInteractive bool   // -i, --interactive
 )
 
-type config struct {
-	APIKey string `mapstructure:"api_key"`
-	Model  string `mapstructure:"model"`
-}
-
 func configure(cmd *cobra.Command, args []string) error {
+	cfg, err := config.Load()
+	if err != nil {
+		cfg = &config.Config{}
+	}
+
 	if !cmd.Flag("api-key").Changed && !cmd.Flag("model").Changed {
 		fmt.Print("OpenAI API Key: ")
 		key, err := term.ReadPassword(int(syscall.Stdin))
@@ -53,26 +50,14 @@ func configure(cmd *cobra.Command, args []string) error {
 	}
 
 	if cmd.Flag("api-key").Changed {
-		viper.Set("api_key", flagAPIKey)
-	} else if cfg.APIKey != "" {
-		viper.Set("api_key", cfg.APIKey)
+		cfg.APIKey = flagAPIKey
 	}
 	if cmd.Flag("model").Changed {
-		viper.Set("model", flagModel)
-	} else if cfg.Model != "" {
-		viper.Set("model", cfg.Model)
+		cfg.Model = flagModel
 	}
 
-	p := ".askai"
-	if flagGlobal {
-		h, err := os.UserHomeDir()
-		if err != nil {
-			return err
-		}
-		p = filepath.Join(h, p)
-	}
-	viper.SetConfigFile(p)
-	if err := viper.WriteConfig(); err != nil {
+	p, err := config.Save(cfg, flagGlobal)
+	if err != nil {
 		return err
 	}
 
@@ -89,6 +74,11 @@ var rootCmd = &cobra.Command{
 			return configure(cmd, args)
 		}
 
+		cfg, err := config.Load()
+		if err != nil {
+			return err
+		}
+
 		uicfg := &ui.Config{
 			APIKey:      cfg.APIKey,
 			Model:       cfg.Model,
@@ -98,7 +88,7 @@ var rootCmd = &cobra.Command{
 		if cmd.Flag("api-key").Changed {
 			uicfg.APIKey = flagAPIKey
 		}
-		if uicfg.APIKey == "" {
+		if strings.TrimSpace(uicfg.APIKey) == "" {
 			return fmt.Errorf("OpenAI API Key is required")
 		}
 
@@ -136,13 +126,4 @@ func init() {
 	rootCmd.Flags().StringVarP(&flagAPIKey, "api-key", "k", "", "the OpenAI API key")
 	rootCmd.Flags().StringVarP(&flagModel, "model", "m", openai.GPT3Dot5Turbo, "the chat completion model to use")
 	rootCmd.Flags().BoolVarP(&flagInteractive, "interactive", "i", false, "interactive mode")
-
-	cobra.OnInitialize(func() {
-		viper.SetConfigName(".askai")
-		viper.SetConfigType("yaml")
-		viper.AddConfigPath(".")
-		viper.AddConfigPath("$HOME")
-		_ = viper.ReadInConfig()
-		_ = viper.Unmarshal(&cfg)
-	})
 }
