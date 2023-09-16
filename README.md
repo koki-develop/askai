@@ -9,9 +9,8 @@
 <a href="./LICENSE"><img src="https://img.shields.io/github/license/koki-develop/askai" alt="LICENSE"></a>
 </p>
 
-<!-- TODO: Replace `CLI_DESCRIPTION` with cli description. -->
 <p align="center">
-CLI_DESCRIPTION
+AI is with you.
 </p>
 
 ## Contents
@@ -40,7 +39,7 @@ Download the binary from the [releases page](https://github.com/koki-develop/ask
 
 ## Usage
 
-<!-- TODO: Describe how to use. -->
+TODO: WIP
 
 ## LICENSE
 
