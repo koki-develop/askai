@@ -113,20 +113,24 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		case key.Matches(msg, m.textareaKeyMap.Submit):
 			askm := m.textarea.Value()
-			m.messages = append(m.messages, openai.ChatCompletionMessage{Role: openai.ChatMessageRoleUser, Content: askm})
-			m.textarea.Reset()
-			cmds = append(cmds, m.startReceiving)
+			if strings.TrimSpace(askm) != "" {
+				m.messages = append(m.messages, openai.ChatCompletionMessage{Role: openai.ChatMessageRoleUser, Content: askm})
+				m.textarea.Reset()
+				cmds = append(cmds, m.startReceiving)
+			}
 		}
 	case tea.WindowSizeMsg:
 		m.textarea.SetWidth(msg.Width)
 	case startReceivingMsg:
 		m.textarea.Blur()
+		m.textareaKeyMap.Submit.SetEnabled(false)
 		m.receiving = true
 		cmds = append(cmds, m.receive)
 	case receivedMsg:
 		m.resceivingMessage = msg.string
 	case endReceivingMsg:
 		m.textarea.Focus()
+		m.textareaKeyMap.Submit.SetEnabled(true)
 		m.receiving = false
 		m.messages = append(m.messages, openai.ChatCompletionMessage{Role: openai.ChatMessageRoleAssistant, Content: m.resceivingMessage})
 		m.resceivingMessage = ""
