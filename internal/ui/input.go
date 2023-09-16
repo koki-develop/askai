@@ -3,6 +3,7 @@ package ui
 import (
 	"github.com/charmbracelet/bubbles/textarea"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 var (
@@ -46,6 +47,8 @@ func (m *inputModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.value = m.textarea.Value()
 			return m, tea.Quit
 		}
+	case tea.WindowSizeMsg:
+		m.textarea.SetWidth(msg.Width)
 	}
 
 	m.textarea, cmd = m.textarea.Update(msg)
@@ -57,5 +60,6 @@ func (m *inputModel) View() string {
 		return ""
 	}
 
-	return m.textarea.View()
+	you := lipgloss.NewStyle().Background(lipgloss.Color("#00ADD8")).Foreground(lipgloss.Color("#000000")).Padding(0, 1).Render("You")
+	return you + "\n" + m.textarea.View()
 }
