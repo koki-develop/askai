@@ -5,6 +5,7 @@ go 1.21.0
 require (
 	github.com/charmbracelet/bubbles v0.16.1
 	github.com/charmbracelet/bubbletea v0.24.2
+	github.com/sashabaranov/go-openai v1.15.3
 	github.com/spf13/cobra v1.7.0
 )
 
