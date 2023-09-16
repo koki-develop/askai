@@ -70,10 +70,10 @@ func (ui *UI) Start() error {
 
 		messages = append(messages, openai.ChatCompletionMessage{Role: openai.ChatMessageRoleUser, Content: msg})
 		if ui.interactive {
-			ui.writer.Write([]byte(youHeader))
-			ui.writer.Write([]byte{'\n'})
-			ui.writer.Write([]byte(strings.TrimSpace(msg)))
-			ui.writer.Write([]byte{'\n', '\n'})
+			_, _ = ui.writer.Write([]byte(youHeader))
+			_, _ = ui.writer.Write([]byte{'\n'})
+			_, _ = ui.writer.Write([]byte(strings.TrimSpace(msg)))
+			_, _ = ui.writer.Write([]byte{'\n', '\n'})
 		}
 
 		ans, err := ui.printAnswer(ctx, messages)
@@ -115,8 +115,8 @@ func (ui *UI) printAnswer(ctx context.Context, messages []openai.ChatCompletionM
 
 	b := new(strings.Builder)
 	if ui.interactive {
-		ui.writer.Write([]byte(aiHeader))
-		ui.writer.Write([]byte{'\n'})
+		_, _ = ui.writer.Write([]byte(aiHeader))
+		_, _ = ui.writer.Write([]byte{'\n'})
 	}
 	for {
 		resp, err := stream.Recv()
@@ -128,12 +128,12 @@ func (ui *UI) printAnswer(ctx context.Context, messages []openai.ChatCompletionM
 		}
 		s := resp.Choices[0].Delta.Content
 		b.WriteString(s)
-		ui.writer.Write([]byte(s))
+		_, _ = ui.writer.Write([]byte(s))
 	}
 	if ui.interactive {
-		ui.writer.Write([]byte{'\n'})
+		_, _ = ui.writer.Write([]byte{'\n'})
 	}
-	ui.writer.Write([]byte{'\n'})
+	_, _ = ui.writer.Write([]byte{'\n'})
 
 	return b.String(), nil
 }

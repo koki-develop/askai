@@ -45,7 +45,7 @@ func newInputModel() *inputModel {
 	ta.Focus()
 
 	return &inputModel{
-		help:     help.NewModel(),
+		help:     help.New(),
 		textarea: ta,
 		textareaKeyMap: textareaKeyMap{
 			Submit: key.NewBinding(
