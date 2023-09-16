@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"fmt"
+	"errors"
 	"os"
 	"strings"
 
@@ -47,7 +47,7 @@ var rootCmd = &cobra.Command{
 			uicfg.APIKey = flagAPIKey
 		}
 		if strings.TrimSpace(uicfg.APIKey) == "" {
-			return fmt.Errorf("OpenAI API Key is required")
+			return errors.New("API Key is required")
 		}
 
 		if cmd.Flag("model").Changed {
