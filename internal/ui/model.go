@@ -12,6 +12,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/glamour"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/mattn/go-runewidth"
 	"github.com/sashabaranov/go-openai"
 )
 
@@ -86,6 +87,7 @@ func newModel(cfg *Config) *model {
 }
 
 func (m *model) Init() tea.Cmd {
+	runewidth.DefaultCondition.EastAsianWidth = false
 	return tea.Batch(
 		textarea.Blink,
 	)
