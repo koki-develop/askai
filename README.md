@@ -1,7 +1,8 @@
 <h1 align="center">askai</h1>
 
 <p align="center">
-AI is with you.
+AI is with you.<br>
+Powered by <a href="https://openai.com/blog/openai-api">OpenAI API</a>
 </p>
 
 <p align="center">
