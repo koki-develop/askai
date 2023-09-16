@@ -10,11 +10,11 @@ type UI struct {
 
 func New() *UI {
 	return &UI{
-		model: &model{},
+		model: newModel(),
 	}
 }
 
-func (*UI) Start() error {
-	p := tea.NewProgram(&model{})
+func (ui *UI) Start() error {
+	p := tea.NewProgram(ui.model)
 	return p.Start()
 }
