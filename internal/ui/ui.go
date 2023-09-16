@@ -5,16 +5,33 @@ import (
 )
 
 type UI struct {
-	model *model
+	program *tea.Program
+	model   *model
 }
 
-func New() *UI {
+type Config struct {
+	APIKey string
+	Model  string
+}
+
+func New(cfg *Config) *UI {
+	m := newModel(cfg)
+	p := tea.NewProgram(m)
+	m.program = p
+
 	return &UI{
-		model: newModel(),
+		program: p,
+		model:   m,
 	}
 }
 
 func (ui *UI) Start() error {
-	p := tea.NewProgram(ui.model)
-	return p.Start()
+	if err := ui.program.Start(); err != nil {
+		return err
+	}
+	if ui.model.err != nil {
+		return ui.model.err
+	}
+
+	return nil
 }
