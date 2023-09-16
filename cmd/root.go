@@ -22,6 +22,7 @@ var (
 	cfg config
 
 	flagGlobal      bool   // -g, --global
+	flagConfigure   bool   // -c, --configure
 	flagAPIKey      string // -k, --api-key
 	flagModel       string // -m, --model
 	flagInteractive bool   // -i, --interactive
@@ -32,57 +33,52 @@ type config struct {
 	Model  string `mapstructure:"model"`
 }
 
-var configureCmd = &cobra.Command{
-	Use:   "configure",
-	Short: "Configure askai",
-	Long:  "Configure askai.",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		if !cmd.Flag("api-key").Changed && !cmd.Flag("model").Changed {
-			fmt.Print("OpenAI API Key: ")
-			key, err := term.ReadPassword(int(syscall.Stdin))
-			if err != nil {
-				return err
-			}
-			if len(key) != 0 {
-				cfg.APIKey = string(key)
-			}
-
-			fmt.Print("\nChat Completion Model: ")
-			var m string
-			fmt.Scanln(&m)
-			if m != "" {
-				cfg.Model = m
-			}
-		}
-
-		if cmd.Flag("api-key").Changed {
-			viper.Set("api_key", flagAPIKey)
-		} else if cfg.APIKey != "" {
-			viper.Set("api_key", cfg.APIKey)
-		}
-		if cmd.Flag("model").Changed {
-			viper.Set("model", flagModel)
-		} else if cfg.Model != "" {
-			viper.Set("model", cfg.Model)
-		}
-
-		if flagGlobal {
-			h, err := os.UserHomeDir()
-			if err != nil {
-				return err
-			}
-			p := filepath.Join(h, ".askai")
-			viper.SetConfigFile(p)
-		} else {
-			viper.SetConfigFile(".askai")
-		}
-		if err := viper.WriteConfig(); err != nil {
+func configure(cmd *cobra.Command, args []string) error {
+	if !cmd.Flag("api-key").Changed && !cmd.Flag("model").Changed {
+		fmt.Print("OpenAI API Key: ")
+		key, err := term.ReadPassword(int(syscall.Stdin))
+		if err != nil {
 			return err
 		}
+		if len(key) != 0 {
+			cfg.APIKey = string(key)
+		}
 
-		fmt.Println("Configured.")
-		return nil
-	},
+		fmt.Print("\nChat Completion Model: ")
+		var m string
+		fmt.Scanln(&m)
+		if m != "" {
+			cfg.Model = m
+		}
+	}
+
+	if cmd.Flag("api-key").Changed {
+		viper.Set("api_key", flagAPIKey)
+	} else if cfg.APIKey != "" {
+		viper.Set("api_key", cfg.APIKey)
+	}
+	if cmd.Flag("model").Changed {
+		viper.Set("model", flagModel)
+	} else if cfg.Model != "" {
+		viper.Set("model", cfg.Model)
+	}
+
+	if flagGlobal {
+		h, err := os.UserHomeDir()
+		if err != nil {
+			return err
+		}
+		p := filepath.Join(h, ".askai")
+		viper.SetConfigFile(p)
+	} else {
+		viper.SetConfigFile(".askai")
+	}
+	if err := viper.WriteConfig(); err != nil {
+		return err
+	}
+
+	fmt.Println("Configured.")
+	return nil
 }
 
 var rootCmd = &cobra.Command{
@@ -90,6 +86,10 @@ var rootCmd = &cobra.Command{
 	Short: "AI is with you",
 	Long:  "AI is with you.",
 	RunE: func(cmd *cobra.Command, args []string) error {
+		if flagConfigure {
+			return configure(cmd, args)
+		}
+
 		uicfg := &ui.Config{
 			APIKey:      cfg.APIKey,
 			Model:       cfg.Model,
@@ -132,14 +132,11 @@ func Execute() {
 }
 
 func init() {
+	rootCmd.Flags().BoolVarP(&flagGlobal, "global", "g", false, "configure askai globally (only for --configure)")
+	rootCmd.Flags().BoolVar(&flagConfigure, "configure", false, "configure askai")
 	rootCmd.Flags().StringVarP(&flagAPIKey, "api-key", "k", "", "the OpenAI API key")
 	rootCmd.Flags().StringVarP(&flagModel, "model", "m", openai.GPT3Dot5Turbo, "the chat completion model to use")
 	rootCmd.Flags().BoolVarP(&flagInteractive, "interactive", "i", false, "interactive mode")
-
-	rootCmd.AddCommand(configureCmd)
-	configureCmd.Flags().BoolVarP(&flagGlobal, "global", "g", false, "configure askai globally")
-	configureCmd.Flags().StringVarP(&flagAPIKey, "api-key", "k", "", "the OpenAI API key")
-	configureCmd.Flags().StringVarP(&flagModel, "model", "m", "", "the chat completion model to use")
 
 	cobra.OnInitialize(func() {
 		viper.SetConfigName(".askai")
