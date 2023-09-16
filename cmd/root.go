@@ -2,10 +2,15 @@ package cmd
 
 import (
 	"os"
+	"strings"
 
 	"github.com/koki-develop/askai/internal/ui"
 	"github.com/sashabaranov/go-openai"
 	"github.com/spf13/cobra"
+)
+
+var (
+	flagInteractive bool
 )
 
 var rootCmd = &cobra.Command{
@@ -15,10 +20,18 @@ var rootCmd = &cobra.Command{
 		key := os.Getenv("OPENAI_API_KEY")
 		model := openai.GPT3Dot5Turbo
 
-		ui := ui.New(&ui.Config{
-			APIKey: key,
-			Model:  model,
-		})
+		cfg := &ui.Config{
+			APIKey:      key,
+			Model:       model,
+			Interactive: flagInteractive,
+		}
+
+		q := strings.Join(args, " ")
+		if q != "" {
+			cfg.Question = &q
+		}
+
+		ui := ui.New(cfg)
 		if err := ui.Start(); err != nil {
 			return err
 		}
@@ -32,4 +45,8 @@ func Execute() {
 	if err != nil {
 		os.Exit(1)
 	}
+}
+
+func init() {
+	rootCmd.Flags().BoolVarP(&flagInteractive, "interactive", "i", false, "interactive mode")
 }

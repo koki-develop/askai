@@ -18,44 +18,73 @@ var (
 )
 
 type UI struct {
-	writer io.Writer
-	client *openai.Client
-	model  string
+	writer      io.Writer
+	client      *openai.Client
+	model       string
+	interactive bool
+	question    *string
 }
 
 type Config struct {
-	APIKey string
-	Model  string
+	APIKey      string
+	Model       string
+	Interactive bool
+	Question    *string
 }
 
 func New(cfg *Config) *UI {
 	client := openai.NewClient(cfg.APIKey)
 
 	return &UI{
-		writer: os.Stdout,
-		client: client,
-		model:  cfg.Model,
+		writer:      os.Stdout,
+		client:      client,
+		model:       cfg.Model,
+		interactive: cfg.Interactive,
+		question:    cfg.Question,
 	}
 }
 
 func (ui *UI) Start() error {
 	ctx := context.Background()
 
+	if !ui.interactive && ui.question == nil {
+		return errors.New("question is required when interactive mode is disabled")
+	}
+
 	messages := []openai.ChatCompletionMessage{}
 	for {
-		ipt, ok, err := ui.readInput()
-		if err != nil {
-			return err
+		var msg string
+		if ui.question == nil {
+			ipt, ok, err := ui.readInput()
+			if err != nil {
+				return err
+			}
+			if !ok {
+				break
+			}
+			msg = ipt
+		} else {
+			msg = *ui.question
+			ui.question = nil
 		}
-		if !ok {
-			break
+
+		messages = append(messages, openai.ChatCompletionMessage{Role: openai.ChatMessageRoleUser, Content: msg})
+		if ui.interactive {
+			ui.writer.Write([]byte(youHeader))
+			ui.writer.Write([]byte{'\n'})
+			ui.writer.Write([]byte(strings.TrimSpace(msg)))
+			ui.writer.Write([]byte{'\n', '\n'})
 		}
-		messages = append(messages, openai.ChatCompletionMessage{Role: openai.ChatMessageRoleUser, Content: ipt})
 
 		ans, err := ui.printAnswer(ctx, messages)
 		if err != nil {
 			return err
 		}
+
+		if !ui.interactive {
+			break
+		}
+
 		messages = append(messages, openai.ChatCompletionMessage{Role: openai.ChatMessageRoleAssistant, Content: ans})
 	}
 
@@ -70,11 +99,6 @@ func (ui *UI) readInput() (string, bool, error) {
 	if m.abort {
 		return "", false, nil
 	}
-
-	ui.writer.Write([]byte(youHeader))
-	ui.writer.Write([]byte{'\n'})
-	ui.writer.Write([]byte(strings.TrimSpace(m.value)))
-	ui.writer.Write([]byte{'\n', '\n'})
 	return m.value, true, nil
 }
 
@@ -90,8 +114,10 @@ func (ui *UI) printAnswer(ctx context.Context, messages []openai.ChatCompletionM
 	defer stream.Close()
 
 	b := new(strings.Builder)
-	ui.writer.Write([]byte(aiHeader))
-	ui.writer.Write([]byte{'\n'})
+	if ui.interactive {
+		ui.writer.Write([]byte(aiHeader))
+		ui.writer.Write([]byte{'\n'})
+	}
 	for {
 		resp, err := stream.Recv()
 		if err != nil {
@@ -104,7 +130,10 @@ func (ui *UI) printAnswer(ctx context.Context, messages []openai.ChatCompletionM
 		b.WriteString(s)
 		ui.writer.Write([]byte(s))
 	}
-	ui.writer.Write([]byte{'\n', '\n'})
+	if ui.interactive {
+		ui.writer.Write([]byte{'\n'})
+	}
+	ui.writer.Write([]byte{'\n'})
 
 	return b.String(), nil
 }
