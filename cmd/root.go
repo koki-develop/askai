@@ -10,7 +10,8 @@ import (
 )
 
 var (
-	flagInteractive bool
+	flagModel       string // -m, --model
+	flagInteractive bool   // -i, --interactive
 )
 
 var rootCmd = &cobra.Command{
@@ -19,11 +20,10 @@ var rootCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// TODO: from config file
 		key := os.Getenv("OPENAI_API_KEY")
-		model := openai.GPT3Dot5Turbo
 
 		cfg := &ui.Config{
 			APIKey:      key,
-			Model:       model,
+			Model:       flagModel,
 			Interactive: flagInteractive,
 		}
 
@@ -49,5 +49,6 @@ func Execute() {
 }
 
 func init() {
+	rootCmd.Flags().StringVarP(&flagModel, "model", "m", openai.GPT3Dot5Turbo, "the chat completion model to use")
 	rootCmd.Flags().BoolVarP(&flagInteractive, "interactive", "i", false, "interactive mode")
 }
