@@ -26,7 +26,7 @@ func New(cfg *Config) *UI {
 }
 
 func (ui *UI) Start() error {
-	if err := ui.program.Start(); err != nil {
+	if _, err := ui.program.Run(); err != nil {
 		return err
 	}
 	if ui.model.err != nil {
