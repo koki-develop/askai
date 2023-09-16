@@ -12,6 +12,11 @@ import (
 	"golang.org/x/net/context"
 )
 
+var (
+	youHeader = lipgloss.NewStyle().Background(lipgloss.Color("#00ADD8")).Foreground(lipgloss.Color("#000000")).Padding(0, 1).Render("You")
+	aiHeader  = lipgloss.NewStyle().Background(lipgloss.Color("#ffffff")).Foreground(lipgloss.Color("#000000")).Padding(0, 1).Render("AI")
+)
+
 type UI struct {
 	writer io.Writer
 	client *openai.Client
@@ -36,8 +41,6 @@ func New(cfg *Config) *UI {
 func (ui *UI) Start() error {
 	ctx := context.Background()
 
-	you := lipgloss.NewStyle().Background(lipgloss.Color("#00ADD8")).Foreground(lipgloss.Color("#000000")).Padding(0, 1).Render("You")
-	ai := lipgloss.NewStyle().Background(lipgloss.Color("#ffffff")).Foreground(lipgloss.Color("#000000")).Padding(0, 1).Render("AI")
 	messages := []openai.ChatCompletionMessage{}
 
 	for {
@@ -48,7 +51,7 @@ func (ui *UI) Start() error {
 		if m.abort {
 			break
 		}
-		ui.writer.Write([]byte(you))
+		ui.writer.Write([]byte(youHeader))
 		ui.writer.Write([]byte{'\n'})
 		ui.writer.Write([]byte(strings.TrimSpace(m.value)))
 		ui.writer.Write([]byte{'\n', '\n'})
@@ -65,7 +68,7 @@ func (ui *UI) Start() error {
 		defer stream.Close()
 
 		b := new(strings.Builder)
-		ui.writer.Write([]byte(ai))
+		ui.writer.Write([]byte(aiHeader))
 		ui.writer.Write([]byte{'\n'})
 		for {
 			resp, err := stream.Recv()
