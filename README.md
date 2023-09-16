@@ -2,7 +2,7 @@
 
 <p align="center">
 AI is with you.<br>
-Powered by <a href="https://openai.com/blog/openai-api">OpenAI API</a>
+<small>Powered by <a href="https://openai.com/blog/openai-api">OpenAI API</a></small>
 </p>
 
 <p align="center">
