@@ -6,6 +6,8 @@ import (
 	"io"
 	"strings"
 
+	"github.com/charmbracelet/bubbles/help"
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/textarea"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/sashabaranov/go-openai"
@@ -14,6 +16,22 @@ import (
 var (
 	_ tea.Model = (*model)(nil)
 )
+
+type textareaKeyMap struct {
+	Submit key.Binding
+	Quit   key.Binding
+}
+
+func (k textareaKeyMap) ShortHelp() []key.Binding {
+	return []key.Binding{k.Submit, k.Quit}
+}
+
+func (k textareaKeyMap) FullHelp() [][]key.Binding {
+	return [][]key.Binding{
+		{k.Submit},
+		{k.Quit},
+	}
+}
 
 type model struct {
 	program *tea.Program
@@ -24,13 +42,14 @@ type model struct {
 
 	// states
 	err               error
-	askMessage        string
 	receiving         bool
 	resceivingMessage string
 	messages          []openai.ChatCompletionMessage
 
 	// components
-	textarea textarea.Model
+	help           help.Model
+	textarea       textarea.Model
+	textareaKeyMap textareaKeyMap
 }
 
 func newModel(cfg *Config) *model {
@@ -45,12 +64,22 @@ func newModel(cfg *Config) *model {
 		aiModel:  cfg.Model,
 
 		// states
-		askMessage: "",
-		receiving:  false,
-		messages:   []openai.ChatCompletionMessage{},
+		receiving: false,
+		messages:  []openai.ChatCompletionMessage{},
 
 		// components
+		help:     help.New(),
 		textarea: ta,
+		textareaKeyMap: textareaKeyMap{
+			Submit: key.NewBinding(
+				key.WithKeys("ctrl+d"),
+				key.WithHelp("Ctrl+d", "Submit message"),
+			),
+			Quit: key.NewBinding(
+				key.WithKeys("ctrl+c", "esc"),
+				key.WithHelp("Ctrl+c/esc", "Quit the program"),
+			),
+		},
 	}
 }
 
@@ -79,13 +108,12 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.err = msg.error
 		return m, tea.Quit
 	case tea.KeyMsg:
-		switch msg.Type {
-		case tea.KeyCtrlC:
+		switch {
+		case key.Matches(msg, m.textareaKeyMap.Quit):
 			return m, tea.Quit
-		case tea.KeyCtrlD:
+		case key.Matches(msg, m.textareaKeyMap.Submit):
 			askm := m.textarea.Value()
 			m.messages = append(m.messages, openai.ChatCompletionMessage{Role: openai.ChatMessageRoleUser, Content: askm})
-			m.askMessage = askm
 			m.textarea.Reset()
 			cmds = append(cmds, m.startReceiving)
 		}
@@ -114,11 +142,9 @@ func (m *model) startReceiving() tea.Msg {
 func (m *model) receive() tea.Msg {
 	ctx := context.Background()
 	stream, err := m.aiClient.CreateChatCompletionStream(ctx, openai.ChatCompletionRequest{
-		Messages: []openai.ChatCompletionMessage{
-			{Role: openai.ChatMessageRoleUser, Content: m.askMessage},
-		},
-		Model:  m.aiModel,
-		Stream: true,
+		Messages: m.messages,
+		Model:    m.aiModel,
+		Stream:   true,
 	})
 	if err != nil {
 		return errMsg{err}
@@ -154,6 +180,8 @@ func (m *model) View() string {
 		v.WriteString(m.resceivingMessage)
 	} else {
 		v.WriteString(m.textarea.View())
+		v.WriteRune('\n')
+		v.WriteString(m.help.View(m.textareaKeyMap))
 		v.WriteRune('\n')
 	}
 
