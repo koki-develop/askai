@@ -129,7 +129,7 @@ func init() {
 
 	cobra.OnInitialize(func() {
 		viper.SetConfigName(".askai")
-		viper.SetConfigType("toml")
+		viper.SetConfigType("yaml")
 		viper.AddConfigPath(".")
 		_ = viper.ReadInConfig()
 		_ = viper.Unmarshal(&cfg)
