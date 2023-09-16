@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"strings"
+
 	"github.com/charmbracelet/bubbles/textarea"
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -33,6 +35,7 @@ func (m *inputModel) Init() tea.Cmd {
 
 func (m *inputModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
+	m.textarea, cmd = m.textarea.Update(msg)
 
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
@@ -42,15 +45,16 @@ func (m *inputModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.abort = true
 			return m, tea.Quit
 		case tea.KeyCtrlD:
-			m.quitting = true
-			m.value = m.textarea.Value()
-			return m, tea.Quit
+			if strings.TrimSpace(m.textarea.Value()) != "" {
+				m.quitting = true
+				m.value = m.textarea.Value()
+				return m, tea.Quit
+			}
 		}
 	case tea.WindowSizeMsg:
 		m.textarea.SetWidth(msg.Width)
 	}
 
-	m.textarea, cmd = m.textarea.Update(msg)
 	return m, cmd
 }
 
