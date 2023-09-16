@@ -8,7 +8,7 @@ before:
     - go generate ./...
 builds:
   - ldflags:
-      - -s -w -X github.com/koki-develop/CLI_NAME/cmd.version=v{{.Version}} # TODO
+      - -s -w -X github.com/koki-develop/askai/cmd.version=v{{.Version}}
     env:
       - CGO_ENABLED=0
     goos:
