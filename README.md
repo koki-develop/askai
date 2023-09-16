@@ -1,6 +1,10 @@
 <h1 align="center">askai</h1>
 
 <p align="center">
+AI is with you.
+</p>
+
+<p align="center">
 <a href="https://github.com/koki-develop/askai/releases/latest"><img src="https://img.shields.io/github/v/release/koki-develop/askai" alt="GitHub release (latest by date)"></a>
 <a href="https://github.com/koki-develop/askai/releases/latest"><img alt="GitHub all releases" src="https://img.shields.io/github/downloads/koki-develop/askai/total?style=flat"></a>
 <a href="https://github.com/koki-develop/askai/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/koki-develop/askai/ci.yml?logo=github" alt="GitHub Workflow Status"></a>
@@ -10,7 +14,7 @@
 </p>
 
 <p align="center">
-AI is with you.
+<img src="./assets/demo.gif" >
 </p>
 
 ## Contents
