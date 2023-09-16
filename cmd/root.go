@@ -41,6 +41,7 @@ var rootCmd = &cobra.Command{
 			APIKey:      cfg.APIKey,
 			Model:       cfg.Model,
 			Interactive: flagInteractive,
+			Messages:    cfg.Messages.OpenAI(),
 		}
 
 		if cmd.Flag("api-key").Changed {

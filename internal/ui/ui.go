@@ -23,6 +23,7 @@ type UI struct {
 	model       string
 	interactive bool
 	question    *string
+	messages    []openai.ChatCompletionMessage
 }
 
 type Config struct {
@@ -30,6 +31,7 @@ type Config struct {
 	Model       string
 	Interactive bool
 	Question    *string
+	Messages    []openai.ChatCompletionMessage
 }
 
 func New(cfg *Config) *UI {
@@ -41,6 +43,7 @@ func New(cfg *Config) *UI {
 		model:       cfg.Model,
 		interactive: cfg.Interactive,
 		question:    cfg.Question,
+		messages:    cfg.Messages,
 	}
 }
 
@@ -51,7 +54,6 @@ func (ui *UI) Start() error {
 		return errors.New("question is required when interactive mode is disabled")
 	}
 
-	messages := []openai.ChatCompletionMessage{}
 	for {
 		var msg string
 		if ui.question == nil {
@@ -68,7 +70,7 @@ func (ui *UI) Start() error {
 			ui.question = nil
 		}
 
-		messages = append(messages, openai.ChatCompletionMessage{Role: openai.ChatMessageRoleUser, Content: msg})
+		ui.messages = append(ui.messages, openai.ChatCompletionMessage{Role: openai.ChatMessageRoleUser, Content: msg})
 		if ui.interactive {
 			_, _ = ui.writer.Write([]byte(youHeader))
 			_, _ = ui.writer.Write([]byte{'\n'})
@@ -76,7 +78,7 @@ func (ui *UI) Start() error {
 			_, _ = ui.writer.Write([]byte{'\n', '\n'})
 		}
 
-		ans, err := ui.printAnswer(ctx, messages)
+		ans, err := ui.printAnswer(ctx)
 		if err != nil {
 			return err
 		}
@@ -85,7 +87,7 @@ func (ui *UI) Start() error {
 			break
 		}
 
-		messages = append(messages, openai.ChatCompletionMessage{Role: openai.ChatMessageRoleAssistant, Content: ans})
+		ui.messages = append(ui.messages, openai.ChatCompletionMessage{Role: openai.ChatMessageRoleAssistant, Content: ans})
 	}
 
 	return nil
@@ -102,9 +104,9 @@ func (ui *UI) readInput() (string, bool, error) {
 	return m.value, true, nil
 }
 
-func (ui *UI) printAnswer(ctx context.Context, messages []openai.ChatCompletionMessage) (string, error) {
+func (ui *UI) printAnswer(ctx context.Context) (string, error) {
 	stream, err := ui.client.CreateChatCompletionStream(ctx, openai.ChatCompletionRequest{
-		Messages: messages,
+		Messages: ui.messages,
 		Model:    ui.model,
 		Stream:   true,
 	})

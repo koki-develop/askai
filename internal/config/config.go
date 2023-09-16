@@ -4,12 +4,32 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/sashabaranov/go-openai"
 	"gopkg.in/yaml.v3"
 )
 
 type Config struct {
-	APIKey string `yaml:"api_key"`
-	Model  string `yaml:"model"`
+	APIKey   string   `yaml:"api_key"`
+	Model    string   `yaml:"model"`
+	Messages Messages `yaml:"messages"`
+}
+
+type Message struct {
+	Role    string `yaml:"role"`
+	Content string `yaml:"content"`
+}
+
+type Messages []Message
+
+func (m Messages) OpenAI() []openai.ChatCompletionMessage {
+	msgs := make([]openai.ChatCompletionMessage, len(m))
+	for i, msg := range m {
+		msgs[i] = openai.ChatCompletionMessage{
+			Role:    msg.Role,
+			Content: msg.Content,
+		}
+	}
+	return msgs
 }
 
 func Load() (*Config, error) {
