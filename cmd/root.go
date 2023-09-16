@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 	"syscall"
 
@@ -20,6 +21,7 @@ import (
 var (
 	cfg config
 
+	flagGlobal      bool   // -g, --global
 	flagAPIKey      string // -k, --api-key
 	flagModel       string // -m, --model
 	flagInteractive bool   // -i, --interactive
@@ -63,7 +65,18 @@ var initCmd = &cobra.Command{
 		} else if cfg.Model != "" {
 			viper.Set("model", cfg.Model)
 		}
-		if err := viper.WriteConfigAs(".askai"); err != nil {
+
+		if flagGlobal {
+			h, err := os.UserHomeDir()
+			if err != nil {
+				return err
+			}
+			p := filepath.Join(h, ".askai")
+			viper.SetConfigFile(p)
+		} else {
+			viper.SetConfigFile(".askai")
+		}
+		if err := viper.WriteConfig(); err != nil {
 			return err
 		}
 
@@ -124,6 +137,7 @@ func init() {
 	rootCmd.Flags().BoolVarP(&flagInteractive, "interactive", "i", false, "interactive mode")
 
 	rootCmd.AddCommand(initCmd)
+	initCmd.Flags().BoolVarP(&flagGlobal, "global", "g", false, "configure askai globally")
 	initCmd.Flags().StringVarP(&flagAPIKey, "api-key", "k", "", "the OpenAI API key")
 	initCmd.Flags().StringVarP(&flagModel, "model", "m", "", "the chat completion model to use")
 
@@ -131,6 +145,7 @@ func init() {
 		viper.SetConfigName(".askai")
 		viper.SetConfigType("yaml")
 		viper.AddConfigPath(".")
+		viper.AddConfigPath("$HOME")
 		_ = viper.ReadInConfig()
 		_ = viper.Unmarshal(&cfg)
 	})
