@@ -42,7 +42,22 @@ Download the binary from the [releases page](https://github.com/koki-develop/ask
 
 ## Usage
 
-TODO: WIP
+```console
+$ askai --help
+AI is with you.
+
+Usage:
+  askai [flags] [question]
+
+Flags:
+  -k, --api-key string   the OpenAI API key
+      --configure        configure askai
+  -g, --global           configure askai globally (only for --configure)
+  -h, --help             help for askai
+  -i, --interactive      interactive mode
+  -m, --model string     the chat completion model to use (default "gpt-3.5-turbo")
+  -v, --version          version for askai
+```
 
 ## LICENSE
 
