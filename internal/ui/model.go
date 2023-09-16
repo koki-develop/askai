@@ -87,6 +87,8 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.textarea.Reset()
 			cmds = append(cmds, m.startReceiving)
 		}
+	case tea.WindowSizeMsg:
+		m.textarea.SetWidth(msg.Width)
 	case startReceivingMsg:
 		m.textarea.Blur()
 		m.receiving = true
