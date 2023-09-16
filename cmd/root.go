@@ -14,7 +14,8 @@ var (
 )
 
 var rootCmd = &cobra.Command{
-	Use: "askai",
+	Use:   "askai [flags] [question]",
+	Short: "AI is with you.",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// TODO: from config file
 		key := os.Getenv("OPENAI_API_KEY")
