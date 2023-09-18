@@ -65,28 +65,28 @@ Flags:
 
 ### Setup
 
-First, run the `askai` with the `--configure` flag set.
+First, run `askai` with the `--configure` flag set.
 
 ```console
 $ askai --configure
 ```
 
-Upon doing so, you will initiate an interactive setup session.  
+Upon doing this, an interactive setup session will be initiated.  
 Input the following items:
 
 - OpenAI API Key: API key created on [the OpenAI platform](https://platform.openai.com).
 - Model: The chat completion model to use. (Available: `gpt-4`, `gpt-4-0613`, `gpt-4-32k`, `gpt-4-32k-0613`, `gpt-3.5-turbo`, `gpt-3.5-turbo-0613`, `gpt-3.5-turbo-16k`, `gpt-3.5-turbo-16k-0613`)
 
-Once the setup is completed, a configuration file named `.askai` will be saved.  
+Once the setup is completed, a configuration file named `.askai` will be created.  
 Now, you are all set.
 
 > **Note**
-> If you run the `askai --configure` with the `--global` flag set, the configuration file will be saved as `$HOME/.askai`.  
+> If you run `askai --configure` with the `--global` flag set, the configuration file will be created as `$HOME/.askai`.  
 > This file is referred to when executing `askai`, if there is no `.askai` in the current directory.
 
 ### Ask a question to AI
 
-By passing a question an argument to `askai`, you can obtain an answer from AI.
+By passing a question as an argument to `askai`, you can obtain an answer from AI.
 
 ```console
 $ askai 'Please write a program in Go that outputs "Hello world”.'
@@ -106,7 +106,7 @@ $ askai -i
 
 ### Pass a question from stdin
 
-Questions can also be passed from stdin.
+You can also pass questions from stdin.
 
 ```sh
 # pipe
@@ -116,7 +116,7 @@ $ echo 'QUESTION' | askai
 $ askai < question.txt
 ```
 
-It is possible to pass both input from stdin and arguments at the same time.  
+You can pass both input from stdin and arguments at the same time.  
 By utilizing this, for example, you can also summarize the contents of a specific file.
 
 ```console
