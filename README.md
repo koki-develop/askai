@@ -116,6 +116,13 @@ $ echo 'QUESTION' | askai
 $ askai < question.txt
 ```
 
+It is possible to pass both input from stdin and arguments at the same time.  
+By utilizing this, for example, you can also summarize the contents of a specific file.
+
+```console
+$ cat README.md | askai 'Please summarize this content'
+```
+
 ## LICENSE
 
 [MIT](./LICENSE)
