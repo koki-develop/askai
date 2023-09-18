@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bytes"
 	"errors"
 	"os"
 	"strings"
@@ -58,7 +59,22 @@ var rootCmd = &cobra.Command{
 			uicfg.Model = openai.GPT3Dot5Turbo
 		}
 
-		q := strings.Join(args, " ")
+		var q string
+		if len(args) > 0 {
+			q = strings.Join(args, " ")
+		} else {
+			info, err := os.Stdin.Stat()
+			if err != nil {
+				return err
+			}
+			if info.Mode()&os.ModeCharDevice == 0 {
+				b := new(bytes.Buffer)
+				if _, err := b.ReadFrom(os.Stdin); err != nil {
+					return err
+				}
+				q = b.String()
+			}
+		}
 		if q != "" {
 			uicfg.Question = &q
 		}
