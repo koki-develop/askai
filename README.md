@@ -123,6 +123,8 @@ By utilizing this, for example, you can also summarize the contents of a specifi
 $ cat README.md | askai 'Please summarize this content'
 ```
 
+![](./assets/summarize.gif)
+
 ## LICENSE
 
 [MIT](./LICENSE)
