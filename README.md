@@ -104,6 +104,17 @@ $ askai -i
 
 ![](./assets/demo.gif)
 
+### Pass a question from stdin
+
+Questions can also be passed from stdin.
+
+```sh
+# pipe
+$ echo 'QUESTION' | askai
+
+# file
+$ askai < question.txt
+```
 
 ## LICENSE
 
