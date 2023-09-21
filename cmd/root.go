@@ -12,10 +12,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-/*
- * TODO: refactor
- */
-
 var (
 	flagGlobal      bool   // -g, --global
 	flagConfigure   bool   // --configure
