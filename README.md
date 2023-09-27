@@ -125,6 +125,53 @@ $ cat README.md | askai 'Please summarize this content'
 
 ![](./assets/summarize.gif)
 
+### Ask a question to AI from the Emacs buffer
+
+Please add the following Emacs Lisp code to ~/.emacs.d/init.el.
+
+```Emacs Lisp
+(defun askai-on-region (start end)
+  (interactive "r")
+  (let* ((output-buf (get-buffer-create "*Askai Output*"))
+         (err-buf "*Askai Error*")
+         (cmd "askai")
+	 (cur-buf (current-buffer)))
+    (shell-command-on-region start end cmd output-buf nil err-buf)
+    (with-current-buffer output-buf
+      (let ((str (buffer-substring-no-properties (point-min) (point-max))))
+	(with-current-buffer cur-buf
+	  (insert "\n\n")
+	  (insert str))))))
+(global-set-key (kbd "M-c") 'askai-on-region)
+```
+
+Please restart Emacs and open the `*scratch*` buffer and please input the following sentence.
+
+Then, please select region the following text in Emacs and press the `ESC-c` key.
+
+```
+Please write a program in Go that outputs "Hello world”.
+```
+
+The following string will be inserted after the cursor position.
+
+````
+You can use the package fmt to print "Hello world" in Go language like this:
+
+```GO
+package main
+
+import "fmt"
+
+func main() {
+    fmt.Println("Hello world")
+}
+```
+
+You have to run this program in the environment where Go is installed. You can also use online Go compilers available on the internet if you don't have Go installed in your system.
+````
+
+
 ## LICENSE
 
 [MIT](./LICENSE)
