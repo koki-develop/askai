@@ -1,6 +1,6 @@
 module github.com/koki-develop/askai
 
-go 1.21.0
+go 1.21.5
 
 require (
 	github.com/charmbracelet/bubbles v0.16.1
