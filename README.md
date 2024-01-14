@@ -80,7 +80,7 @@ Input the following items:
 Once the setup is completed, a configuration file named `.askai` will be created.  
 Now, you are all set.
 
-> ![NOTE]
+> [!NOTE]
 > If you run `askai --configure` with the `--global` flag set, the configuration file will be created as `$HOME/.askai`.  
 > This file is referred to when executing `askai`, if there is no `.askai` in the current directory.
 
