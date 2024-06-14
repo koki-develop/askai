@@ -7,7 +7,7 @@ require (
 	github.com/charmbracelet/bubbletea v0.24.2
 	github.com/charmbracelet/lipgloss v0.8.0
 	github.com/sashabaranov/go-openai v1.15.3
-	github.com/spf13/cobra v1.7.0
+	github.com/spf13/cobra v1.8.1
 	golang.org/x/net v0.15.0
 	golang.org/x/term v0.12.0
 	gopkg.in/yaml.v3 v3.0.1
