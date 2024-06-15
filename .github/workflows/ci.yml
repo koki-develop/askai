@@ -34,4 +34,4 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
       - name: Lint
-        uses: golangci/golangci-lint-action@v3
+        uses: golangci/golangci-lint-action@v6
